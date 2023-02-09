@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import asyncio
-from pprint import pprint
 import re
 import telebot
 from telebot.async_telebot import AsyncTeleBot

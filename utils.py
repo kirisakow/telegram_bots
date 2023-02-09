@@ -1,13 +1,14 @@
 from configparser import ConfigParser
-import requests
+import httpx
 import subprocess
 import types
 
 
-def unescape_url(url: str) -> str | None:
-    response_obj = requests.get(
-        f'https://crac.ovh/unescape_url/{url}')
-    unescaped_url = response_obj.json()
+async def unescape_url(url: str) -> str | None:
+    response_obj = httpx.get(
+        f'https://crac.ovh/unescape_url/{url}'
+    )
+    unescaped_url = response_obj.text
     return unescaped_url
 
 

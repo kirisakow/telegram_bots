@@ -26,7 +26,7 @@ async def unfoldAndCleanURLs(message):
         return
     for orig_url in extracted_urls:
         print('orig_url:', orig_url)
-        unescaped_url = unescape_url(orig_url)
+        unescaped_url = await unescape_url(orig_url)
         print('unescaped_url:', unescaped_url)
         target_url = get_target_url(unescaped_url)
         print('target_url:', target_url)

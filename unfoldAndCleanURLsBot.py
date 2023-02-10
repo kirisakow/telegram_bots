@@ -27,6 +27,8 @@ async def unfoldAndCleanURLs(message):
         print('orig_url:', orig_url)
         unescaped_url = await unescape_url(orig_url)
         print('unescaped_url:', unescaped_url)
+        if not re.match(http_url_regex_pattern, unescaped_url):
+            return
         target_url = get_destination_url(unescaped_url)
         print('target_url:', target_url)
         clean_url = url_clean(target_url)

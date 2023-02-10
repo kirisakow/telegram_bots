@@ -27,7 +27,7 @@ async def unfoldAndCleanURLs(message):
         print('orig_url:', orig_url)
         unescaped_url = await unescape_url(orig_url)
         print('unescaped_url:', unescaped_url)
-        target_url = get_target_url(unescaped_url)
+        target_url = get_destination_url(unescaped_url)
         print('target_url:', target_url)
         clean_url = url_clean(target_url)
         print('clean_url:', clean_url)

@@ -12,7 +12,8 @@ async def unescape_url(url: str) -> str | None:
     return unescaped_url
 
 
-def get_target_url(url: str) -> str:
+def get_destination_url(url: str) -> str:
+    """Follow the URL through redirects, if any, and return the destination URL"""
     proc_url_deref = subprocess.Popen(
         ['bash', '-c', '. ../url_tools/bash_functions.sh ; url_deref'],
         stdin=subprocess.PIPE,
@@ -27,6 +28,8 @@ def get_target_url(url: str) -> str:
 
 
 def url_clean(url: str) -> str:
+    """Clean a URL of any junk query parameters. Rules:
+https://github.com/kirisakow/url_tools/blob/main/url_clean/url_cleaner/unwanted_query_params.txt"""
     proc_url_clean = subprocess.Popen(
         ['url_clean'],
         stdin=subprocess.PIPE,
@@ -42,6 +45,8 @@ def url_clean(url: str) -> str:
 
 # Source: https://stackoverflow.com/questions/22161876/python-getattr-and-setattr-with-self-dict/74224889#74224889
 class DotDict(dict):
+    """A dictionary that's navigable with dots, not brackets: `my_dict.key1.value`"""
+
     def __init__(self, d: dict = None):
         super().__init__()
         if d in (None, {}):
@@ -60,9 +65,9 @@ class DotDict(dict):
 
 
 def get_conf():
+    """A convenience function to parse a hardcoded conf file"""
     conf = ConfigParser()
     conf.read('config.toml')
-    # return conf
     return DotDict(
         vars(conf)['_sections']
     )

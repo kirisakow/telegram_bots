@@ -52,9 +52,11 @@ https://github.com/kirisakow/url_tools/blob/main/url_clean/url_cleaner/unwanted_
     return output_as_bytes.decode()
 
 
-# Source: https://stackoverflow.com/questions/22161876/python-getattr-and-setattr-with-self-dict/74224889#74224889
 class DotDict(dict):
-    """A dictionary that's navigable with dots, not brackets: `my_dict.key1.value`"""
+    """A dictionary that's navigable with dots, not brackets: `my_dict.key1.value`.
+
+Source: https://stackoverflow.com/questions/22161876/python-getattr-and-setattr-with-self-dict/74224889#74224889
+"""
 
     def __init__(self, d: dict = None):
         super().__init__()

@@ -5,11 +5,6 @@ import subprocess
 import types
 
 
-def unquote_str_if_quoted(possibly_quoted_string: str) -> str:
-    """Unquote a possibly quoted string, like a JSON response"""
-    return re.sub(r'^"(.*)"$', "\\1", possibly_quoted_string, 1)
-
-
 async def unescape_url(url: str) -> str:
     resp = httpx.get(
         f'https://crac.ovh/unescape_url?url={url}'
@@ -17,7 +12,7 @@ async def unescape_url(url: str) -> str:
     if resp.status_code != httpx.codes.OK:
         status_code_and_name = f"{resp.status_code} {httpx.codes(resp.status_code).name}"
         return status_code_and_name.replace('_', ' ')
-    unescaped_url = unquote_str_if_quoted(resp.text)
+    unescaped_url = resp.text.strip('"')
     return unescaped_url
 
 

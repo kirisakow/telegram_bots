@@ -3,3 +3,4 @@ asyncio>=3.4.3
 configparser>=5.3.0
 httpx>=0.23.3
 aiohttp>=3.8.3
+cysystemd>=1.5.3

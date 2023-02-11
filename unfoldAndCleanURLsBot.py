@@ -1,8 +1,16 @@
 import asyncio
+from cysystemd import journal
+import logging
 import re
+import sys
 import telebot
 from telebot.async_telebot import AsyncTeleBot
 from utils import *
+
+logger = get_journalctl_logger(name='unfoldAndCleanURLsBot',
+                               level=logging.INFO)
+sys.stderr.write = logger.error
+sys.stdout.write = logger.info
 
 bot = AsyncTeleBot(token=conf.bot1.api_token)
 
@@ -18,19 +26,19 @@ async def unfoldAndCleanURLs(message):
     http_url_regex_pattern = r"https?://[a-zA-Z0-9_.]+(:[0-9]{2,5})?([a-zA-Z0-9_.,/#!?&;=%:~*-]+)?"
     matches = re.finditer(http_url_regex_pattern, message.text, re.MULTILINE)
     extracted_urls = [match.group() for match in matches]
-    print('extracted_urls:', extracted_urls)
+    print(f'extracted_urls: {extracted_urls!r}')
     if not extracted_urls:
         return
     for orig_url in extracted_urls:
-        print('orig_url:', orig_url)
+        print(f'orig_url: {orig_url!r}')
         target_url = get_destination_url(orig_url)
-        print('target_url:', target_url)
+        print(f'target_url: {target_url!r}')
         unescaped_url = await unescape_url(target_url)
-        print('unescaped_url:', unescaped_url)
+        print(f'unescaped_url: {unescaped_url!r}')
         if not re.match(http_url_regex_pattern, unescaped_url):
             return
         clean_url = url_clean(unescaped_url)
-        print('clean_url:', clean_url)
+        print(f'clean_url: {clean_url!r}')
         if clean_url != orig_url:
             await bot.reply_to(
                 message, clean_url,

@@ -1,8 +1,17 @@
 from configparser import ConfigParser
+from cysystemd import journal
 import httpx
+import logging
 import re
 import subprocess
 import types
+
+
+def get_journalctl_logger(name=None, level=None):
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(journal.JournaldLogHandler())
+    return logger
 
 
 async def unescape_url(url: str) -> str:

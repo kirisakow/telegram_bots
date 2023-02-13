@@ -17,7 +17,7 @@ bot = AsyncTeleBot(token=conf.bot1.api_token)
 
 @bot.message_handler(
     func=lambda message: True,
-    chat_types=['group', 'supergroup', 'channel'],
+    chat_types=['private', 'group', 'supergroup', 'channel'],
     content_types=telebot.util.content_type_media
 )
 async def unfoldAndCleanURLs(message):

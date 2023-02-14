@@ -78,12 +78,12 @@ Source: https://stackoverflow.com/questions/22161876/python-getattr-and-setattr-
 
     def __init__(self, d: dict = None):
         super().__init__()
-        if d in (None, {}):
-            print(
-                "Warning: DotDict cannot be instantiated with an empty dictionary", file=sys.stderr)
-            return
-        for key, value in d.items():
-            self[key] = DotDict(value) if type(value) is dict else value
+        try:
+            for key, value in d.items():
+                self[key] = DotDict(value) if type(value) is dict else value
+        except AttributeError as e:
+            print("DotDict cannot be instantiated with an empty or a NoneType dictionary.")
+            raise e
 
     def __getattr__(self, key):
         if key in self:

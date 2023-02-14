@@ -48,4 +48,7 @@ async def unfoldAndCleanURLs(message):
             )
 
 
-asyncio.run(bot.infinity_polling())
+try:
+    asyncio.run(bot.infinity_polling())
+except KeyboardInterrupt as e:
+    print('process interrupted by user')

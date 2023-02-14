@@ -13,7 +13,7 @@ bot = AsyncTeleBot(token=conf.bot1.api_token)
     chat_types=['private', 'group', 'supergroup', 'channel'],
     content_types=telebot.util.content_type_media
 )
-@log_to_journalctl(name='unfoldAndCleanURLsBot', level=logging.DEBUG)
+@log_to_journalctl(name='unfoldAndCleanURLsBot: unfoldAndCleanURLs', level=logging.DEBUG)
 async def unfoldAndCleanURLs(message):
     if not message.text:
         return

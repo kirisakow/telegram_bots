@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 import types
+import urllib.parse
 
 def this_func_name():
     return inspect.stack()[1].function
@@ -30,7 +31,7 @@ class JournalLogger(logging.Logger):
 
 async def unescape_url(url: str) -> str:
     resp = httpx.get(
-        f'https://crac.ovh/unescape_url?url={url}'
+        f'https://crac.ovh/unescape_url/{urllib.parse.quote(url)}'
     )
     if resp.status_code != httpx.codes.OK:
         status_code_and_name = f"{resp.status_code} {httpx.codes(resp.status_code).name}"

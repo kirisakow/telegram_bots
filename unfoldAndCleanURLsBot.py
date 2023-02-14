@@ -32,7 +32,7 @@ async def unfoldAndCleanURLs(message):
         jl.print(f'unescaped_url: {unescaped_url!r}')
         if not re.match(http_url_regex_pattern, unescaped_url):
             return
-        clean_url = url_clean(unescaped_url)
+        clean_url = url_clean(unescaped_url).strip('\n')
         jl.print(f'clean_url: {clean_url!r}')
         if clean_url != orig_url:
             await bot.reply_to(

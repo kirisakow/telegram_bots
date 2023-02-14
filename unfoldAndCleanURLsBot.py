@@ -26,9 +26,9 @@ async def unfoldAndCleanURLs(message):
     http_url_regex_pattern = r"https?://[a-zA-Z0-9_.]+(:[0-9]{2,5})?([a-zA-Z0-9_.,/#!?&;=%:~*-]+)?"
     matches = re.finditer(http_url_regex_pattern, message.text, re.MULTILINE)
     extracted_urls = [match.group() for match in matches]
-    print(f'extracted_urls: {extracted_urls!r}')
     if not extracted_urls:
         return
+    print(f'extracted_urls: {extracted_urls!r}')
     for orig_url in extracted_urls:
         print(f'orig_url: {orig_url!r}')
         target_url = get_destination_url(orig_url)

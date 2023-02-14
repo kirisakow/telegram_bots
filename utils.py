@@ -1,42 +1,31 @@
 from configparser import ConfigParser
+from cysystemd import journal
 import httpx
+import inspect
+import logging
 import re
 import subprocess
+import sys
 import types
 
+def this_func_name():
+    return inspect.stack()[1].function
 
-def log_to_journalctl(*, name=None, level=None):
-    """decorator
 
-Any call to `print()` made from the wrapped function results in printing to journalctl. Once the wrapped function returns, `stdout` and `stderr` are reverted to their original state."""
+def caller_func_name():
+    return inspect.stack()[2].function
 
-    def decorator(func):
-        import builtins
-        from cysystemd import journal
-        from functools import wraps
-        import logging
-        import sys
 
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            orig_stderr = sys.stderr
-            orig_stdout = sys.stdout
-            orig_print = builtins.print
-            logger = logging.getLogger(name)
-            logger.setLevel(level)
-            logger.addHandler(journal.JournaldLogHandler())
-            sys.stderr.write = logger.error
-            sys.stdout.write = logger.info
-            builtins.print = logger.info
+class JournalLogger(logging.Logger):
+    """An object that enables logging to `journalctl`"""
 
-            result = func(*args, **kwargs)
+    def __init__(self, program_name=None):
+        super().__init__(program_name)
+        self.program_name = program_name
 
-            sys.stderr = orig_stderr
-            sys.stdout = orig_stdout
-            builtins.print = orig_print
-            return result
-        return wrapper
-    return decorator
+    def print(self, *args, **kwargs):
+        print(f"{self.program_name}: {caller_func_name()}: {str(*args)}",
+              **kwargs, file=journal)
 
 
 async def unescape_url(url: str) -> str:

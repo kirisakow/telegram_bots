@@ -6,6 +6,8 @@ from telebot.async_telebot import AsyncTeleBot
 from utils import *
 
 bot = AsyncTeleBot(token=conf.bot1.api_token)
+logging.basicConfig(level=logging.DEBUG)
+jl = JournalLogger(program_name='unfoldAndCleanURLsBot')
 
 
 @bot.message_handler(
@@ -13,7 +15,6 @@ bot = AsyncTeleBot(token=conf.bot1.api_token)
     chat_types=['private', 'group', 'supergroup', 'channel'],
     content_types=telebot.util.content_type_media
 )
-@log_to_journalctl(name='unfoldAndCleanURLsBot: unfoldAndCleanURLs', level=logging.DEBUG)
 async def unfoldAndCleanURLs(message):
     if not message.text:
         return
@@ -22,17 +23,17 @@ async def unfoldAndCleanURLs(message):
     extracted_urls = [match.group() for match in matches]
     if not extracted_urls:
         return
-    print(f'extracted_urls: {extracted_urls!r}')
+    jl.print(f'extracted_urls: {extracted_urls!r}')
     for orig_url in extracted_urls:
-        print(f'orig_url: {orig_url!r}')
+        jl.print(f'orig_url: {orig_url!r}')
         target_url = get_destination_url(orig_url)
-        print(f'target_url: {target_url!r}')
+        jl.print(f'target_url: {target_url!r}')
         unescaped_url = await unescape_url(target_url)
-        print(f'unescaped_url: {unescaped_url!r}')
+        jl.print(f'unescaped_url: {unescaped_url!r}')
         if not re.match(http_url_regex_pattern, unescaped_url):
             return
         clean_url = url_clean(unescaped_url)
-        print(f'clean_url: {clean_url!r}')
+        jl.print(f'clean_url: {clean_url!r}')
         if clean_url != orig_url:
             await bot.reply_to(
                 message, clean_url,

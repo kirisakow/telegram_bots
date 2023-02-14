@@ -1,17 +1,42 @@
 from configparser import ConfigParser
-from cysystemd import journal
 import httpx
-import logging
 import re
 import subprocess
 import types
 
 
-def get_journalctl_logger(name=None, level=None):
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    logger.addHandler(journal.JournaldLogHandler())
-    return logger
+def log_to_journalctl(*, name=None, level=None):
+    """decorator
+
+Any call to `print()` made from the wrapped function results in printing to journalctl. Once the wrapped function returns, `stdout` and `stderr` are reverted to their original state."""
+
+    def decorator(func):
+        import builtins
+        from cysystemd import journal
+        from functools import wraps
+        import logging
+        import sys
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            orig_stderr = sys.stderr
+            orig_stdout = sys.stdout
+            orig_print = builtins.print
+            logger = logging.getLogger(name)
+            logger.setLevel(level)
+            logger.addHandler(journal.JournaldLogHandler())
+            sys.stderr.write = logger.error
+            sys.stdout.write = logger.info
+            builtins.print = logger.info
+
+            result = func(*args, **kwargs)
+
+            sys.stderr = orig_stderr
+            sys.stdout = orig_stdout
+            builtins.print = orig_print
+            return result
+        return wrapper
+    return decorator
 
 
 async def unescape_url(url: str) -> str:

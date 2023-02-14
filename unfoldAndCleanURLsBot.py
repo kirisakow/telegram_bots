@@ -1,16 +1,9 @@
 import asyncio
-from cysystemd import journal
 import logging
 import re
-import sys
 import telebot
 from telebot.async_telebot import AsyncTeleBot
 from utils import *
-
-logger = get_journalctl_logger(name='unfoldAndCleanURLsBot',
-                               level=logging.INFO)
-sys.stderr.write = logger.error
-sys.stdout.write = logger.info
 
 bot = AsyncTeleBot(token=conf.bot1.api_token)
 
@@ -20,6 +13,7 @@ bot = AsyncTeleBot(token=conf.bot1.api_token)
     chat_types=['private', 'group', 'supergroup', 'channel'],
     content_types=telebot.util.content_type_media
 )
+@log_to_journalctl(name='unfoldAndCleanURLsBot', level=logging.DEBUG)
 async def unfoldAndCleanURLs(message):
     if not message.text:
         return

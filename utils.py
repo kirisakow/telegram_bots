@@ -29,7 +29,7 @@ class JournalLogger(logging.Logger):
               **kwargs, file=journal)
 
 
-async def unescape_url(url: str) -> str:
+async def unescape_url_async(url: str) -> str:
     resp = httpx.get(
         f'https://crac.ovh/unescape_url/{urllib.parse.quote(url)}'
     )

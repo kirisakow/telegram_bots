@@ -26,7 +26,7 @@ async def unfoldAndCleanURLs(message):
     jl.print(f'extracted_urls: {extracted_urls!r}')
     for orig_url in extracted_urls:
         jl.print(f'orig_url: {orig_url!r}')
-        target_url = get_destination_url(orig_url)
+        target_url = get_destination_url(orig_url).strip('\n')
         jl.print(f'target_url: {target_url!r}')
         unescaped_url = await unescape_url(target_url)
         jl.print(f'unescaped_url: {unescaped_url!r}')

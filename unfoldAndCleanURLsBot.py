@@ -29,7 +29,7 @@ jl = JournalLogger(program_name='unfoldAndCleanURLsBot')
 async def unfoldAndCleanURLs(message):
     if not message.text:
         return
-    http_url_regex_pattern = r"https?://[a-zA-Z0-9_.]+(:[0-9]{2,5})?([a-zA-Z0-9_.,/#!?&;=%:~*-]+)?"
+    http_url_regex_pattern = r"https?://[a-zA-Z0-9_.]+(:[0-9]{2,5})?[a-zA-Z0-9_.,/#!?&;=%:~*-]*"
     matches = re.finditer(http_url_regex_pattern, message.text, re.MULTILINE)
     extracted_urls = [match.group() for match in matches]
     if not extracted_urls:

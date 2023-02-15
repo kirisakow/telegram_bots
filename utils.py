@@ -25,8 +25,10 @@ class JournalLogger(logging.Logger):
         self.program_name = program_name
 
     def print(self, *args, **kwargs):
-        print(f"{self.program_name}: {caller_func_name()}: {str(*args)}",
-              **kwargs, file=journal)
+        if (caller := caller_func_name()) is str:
+            print(f"{self.program_name}: {caller}: {str(*args)}", **kwargs, file=journal)
+        else:
+            print(f"{self.program_name}: {str(*args)}", **kwargs, file=journal)
 
 
 async def unescape_url_async(url: str) -> str:

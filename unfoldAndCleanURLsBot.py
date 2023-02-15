@@ -62,4 +62,4 @@ try:
         )
     )
 except KeyboardInterrupt as e:
-    print('process interrupted by user')
+    jl.print('process interrupted by user')

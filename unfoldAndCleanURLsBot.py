@@ -124,7 +124,6 @@ async def clean_url(message):
 try:
     asyncio.run(
         bot.infinity_polling(
-            timeout=10,
             skip_pending=True,
             logger_level=logging.DEBUG
         )

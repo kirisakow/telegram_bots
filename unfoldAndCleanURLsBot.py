@@ -30,6 +30,7 @@ async def unfoldAndCleanURLs(message):
     if not message.text:
         return
     http_url_regex_pattern = r"https?://[a-zA-Z0-9_.]+(:[0-9]{2,5})?\S*"
+    patterns_to_ignore = ['youtu.be']
     matches = re.finditer(http_url_regex_pattern, message.text, re.MULTILINE)
     extracted_urls = [match.group() for match in matches]
     if not extracted_urls:
@@ -37,6 +38,9 @@ async def unfoldAndCleanURLs(message):
     jl.print(f'extracted_urls: {extracted_urls!r}')
     for orig_url in extracted_urls:
         jl.print(f'orig_url: {orig_url!r}')
+        if any([ign in orig_url for ign in patterns_to_ignore]):
+            jl.print(f'orig_url was found among patterns to ignore and therefore will be ignored')
+            continue
         target_url = get_destination_url(orig_url).strip('\n')
         jl.print(f'target_url: {target_url!r}')
         unescaped_url = url_unescape(target_url)

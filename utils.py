@@ -74,27 +74,50 @@ https://github.com/kirisakow/url_tools/blob/main/url_clean/url_cleaner/unwanted_
 
 
 class DotDict(dict):
-    """A dictionary that's navigable with dots, not brackets: `my_dict.key1.value`.
+    """A dictionary that's recursively navigable with dots, not brackets.
 
-Source: https://stackoverflow.com/questions/22161876/python-getattr-and-setattr-with-self-dict/74224889#74224889
+Usage examples:
+
+d = {'key1': 'value1',
+     'key2': 'value2',
+     'key3': {'key3a': 'value3a'},
+     'key4': {'key4a': [{'key4aa': 'value4aa',
+                         'key4ab': 'value4ab',
+                         'key4ac': 'value4ac'}],
+              'key4b': 'value4b'}}
+
+dd = DotDict(d)
+print(dd.key4.key4a[0].key4aa)  # value4aa
+dd.key4.key4a[0].key4aa = 'newval'
+print(dd.key4.key4a[0].key4aa)  # newval
+
+print(dd.key4.key4a[0].key4aaa) # AttributeError: attribute .key4aaa not found
+DotDict({}) # AttributeError: DotDict must be instantiated with a non-empty dictionary.
+DotDict()   # AttributeError: DotDict must be instantiated with a non-empty dictionary.
+
+Source: https://stackoverflow.com/questions/22161876/python-getattr-and-setattr-with-self-dict/75561249#75561249
 """
 
-    def __init__(self, d: dict = None):
-        super().__init__()
-        try:
-            for key, value in d.items():
-                self[key] = DotDict(value) if type(value) is dict else value
-        except AttributeError as e:
-            print("DotDict cannot be instantiated with an empty or a NoneType dictionary.")
-            raise e
-
-    def __getattr__(self, key):
-        if key in self:
-            return self[key]
-        raise AttributeError(key)
+    def __init__(self, data: dict = None):
+        # super().__init__()
+        if not data or data is None or not isinstance(data, dict):
+            raise AttributeError(f"{type(self).__name__} must be instantiated with a non-empty dictionary.")
+        for key, value in data.items():
+            if isinstance(value, list):
+                self[key] = [DotDict(item) for item in value]
+            elif isinstance(value, dict):
+                self[key] = DotDict(value)
+            else:
+                self[key] = value
 
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
+
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(f"attribute .{key} not found")
 
 
 def get_conf():

@@ -2,12 +2,15 @@ from configparser import ConfigParser
 from cysystemd import journal
 import httpx
 import inspect
+import json
 import logging
 import re
 import subprocess
 import sys
-import types
+import telebot
 import urllib.parse
+import yt_dlp
+
 
 def this_func_name():
     return inspect.stack()[1].function
@@ -42,7 +45,7 @@ async def unescape_url_async(url: str) -> str:
     return unescaped_url
 
 
-def get_destination_url(url: str) -> str:
+async def get_destination_url(url: str, jl: JournalLogger) -> str:
     """Follow the URL through redirects, if any, and return the destination URL"""
     proc_url_deref = subprocess.Popen(
         ['bash', '-c', '. ../url_tools/bash_functions.sh ; url_deref'],
@@ -53,13 +56,14 @@ def get_destination_url(url: str) -> str:
     proc_url_deref.stdin.flush()
     output_as_bytes, err_as_bytes = proc_url_deref.communicate()
     if err_as_bytes and not output_as_bytes:
-        print(err_as_bytes)
+        jl.print(err_as_bytes)
+        return url
     return output_as_bytes.decode()
 
 
-def url_clean(url: str) -> str:
+async def url_clean(url: str, jl: JournalLogger) -> str:
     """Clean a URL of any junk query parameters. Rules:
-https://github.com/kirisakow/url_tools/blob/main/url_clean/url_cleaner/unwanted_query_params.txt"""
+    https://github.com/kirisakow/url_tools/blob/main/url_clean/url_cleaner/unwanted_query_params.txt"""
     proc_url_clean = subprocess.Popen(
         ['url_clean'],
         stdin=subprocess.PIPE,
@@ -69,7 +73,8 @@ https://github.com/kirisakow/url_tools/blob/main/url_clean/url_cleaner/unwanted_
     proc_url_clean.stdin.flush()
     output_as_bytes, err_as_bytes = proc_url_clean.communicate()
     if err_as_bytes and not output_as_bytes:
-        print(err_as_bytes)
+        jl.print(err_as_bytes)
+        return url
     return output_as_bytes.decode()
 
 
@@ -100,8 +105,8 @@ Source: https://stackoverflow.com/questions/22161876/python-getattr-and-setattr-
 
     def __init__(self, data: dict = None):
         # super().__init__()
-        if not data or data is None or not isinstance(data, dict):
-            raise AttributeError(f"{type(self).__name__} must be instantiated with a non-empty dictionary.")
+        if data is None or not isinstance(data, dict):
+            raise AttributeError(f"{type(self).__name__} must be instantiated with a dictionary, not a {type(data).__name__}.")
         for key, value in data.items():
             if isinstance(value, list):
                 self[key] = [DotDict(item) for item in value]
@@ -130,3 +135,82 @@ def get_conf():
 
 
 conf = get_conf()
+
+
+async def reply_with_text_only(message: telebot.types.Message,
+                               transformed_text: str,
+                               original_text: str,
+                               jl: JournalLogger,
+                               bot: telebot.async_telebot.AsyncTeleBot) -> None:
+    if transformed_text == original_text:
+        jl.print(
+            f"do not send reply: transformed text ({transformed_text!r}) is identical to the original text ({original_text!r})")
+        return
+    await bot.reply_to(
+        message, transformed_text,
+        disable_web_page_preview=False,
+        disable_notification=True,
+        allow_sending_without_reply=True
+    )
+
+
+async def reply_with_video(message: telebot.types.Message,
+                            ret: dict | DotDict,
+                            jl: JournalLogger,
+                            bot: telebot.async_telebot.AsyncTeleBot) -> None:
+    with open(file=ret.abs_path_to_media, mode='rb') as videofile_bytes:
+        await bot.send_chat_action(chat_id=message.chat.id, action='upload_video', timeout=60)
+        await bot.send_video(
+            reply_to_message_id=message.message_id,
+            chat_id=message.chat.id,
+            video=videofile_bytes,
+            thumb=ret.dl_info.thumbnail,
+            caption='\n'.join([
+                ret.clean_url,
+                build_caption(ret.dl_info)
+            ]),
+            disable_notification=True,
+            allow_sending_without_reply=True
+        )
+
+
+def build_caption(dl_info: DotDict | dict) -> str:
+    fields_by_extractor = {
+        'instagram': ['title', 'description', 'uploader', 'channel'],
+        'tiktok': ['title', 'description', 'uploader', 'uploader_id'],
+        'twitter': ['description', 'uploader', 'uploader_id'],
+        'youtube': ['title', 'description', 'uploader', 'channel'],
+        'reddit': ['fulltitle'],
+        'generic': [],
+    }
+    for extractor_name, field_names in fields_by_extractor.items():
+        if extractor_name in dl_info.extractor.lower():
+            return '\n'.join([dl_info[fn] for fn in field_names])
+    return ''
+
+
+async def dl_worker(url: str, jl: JournalLogger):
+    ydl = yt_dlp.YoutubeDL({
+        'format': 'bestvideo*+bestaudio/best',
+        'outtmpl': '%(webpage_url_domain)s.%(webpage_url_basename)s.%(ext)s',
+        'fixup': 'never'})
+    try:
+        jl.print("start downloading media file")
+        dl_info = ydl.extract_info(url)
+        jl.print("media file has been downloaded")
+        jl.print(json.dumps(ydl.sanitize_info(
+            dl_info), indent=2, ensure_ascii=False))
+        dl_info = DotDict(dl_info)
+        try:
+            abs_path_to_media = dl_info.requested_downloads[-1].filepath
+            clean_url = dl_info.webpage_url
+            return {'abs_path_to_media': abs_path_to_media,
+                    'clean_url': dl_info.webpage_url,
+                    'dl_info': dl_info}
+        except Exception as e:
+            jl.print(e)
+    except Exception as e:
+        jl.print("download process has not finished properly")
+        jl.print(e)
+        return None
+    return None

@@ -25,14 +25,14 @@ patterns_from_which_to_download_media = ['tiktok.com', 'instagram.com/tv', 'inst
 
 
 @bot.message_handler(
-    func=lambda message: True,
+    func=lambda message: message.text is not None and message.text.split()[0].casefold() == '@unfoldAndCleanURLsbot'.casefold() and message.reply_to_message is not None and message.reply_to_message.text is not None,
     chat_types=['private', 'group', 'supergroup', 'channel'],
     content_types=telebot.util.content_type_media
 )
-async def unfoldAndCleanURLs(message):
-    if not message.text:
-        return
+async def unfoldAndCleanURLs(message: telebot.types.Message):
     await bot.send_chat_action(chat_id=message.chat.id, action='typing', timeout=60)
+    message = message.reply_to_message
+    jl.print(f"original message text: {message.text!r}")
     matches = re.finditer(http_url_regex_pattern, message.text, re.MULTILINE)
     extracted_urls = [match.group() for match in matches]
     if not extracted_urls:

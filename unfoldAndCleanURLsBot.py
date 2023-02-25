@@ -36,47 +36,40 @@ async def unfoldAndCleanURLs(message):
     matches = re.finditer(http_url_regex_pattern, message.text, re.MULTILINE)
     extracted_urls = [match.group() for match in matches]
     if not extracted_urls:
-        jl.print(f"no URLs in this message: unescape message text and return")
-        jl.print(f"original message text: {message.text!r}")
+        jl.print(f"no URLs in this message, but maybe we can at least unescape it and send back")
         unescaped_text = url_unescape(message.text)
         jl.print(f"unescaped message text: {unescaped_text!r}")
-        await reply_with_text_only(message, unescaped_text, message.text, jl, bot)
+        if unescaped_text == message.text:
+            jl.print(f"unescaped text is identical to the original text: skip it")
+        else:
+            await reply_with_text_only(message, unescaped_text, message.text, jl, bot)
         return
     jl.print(f'extracted_urls: {extracted_urls!r}')
-    for orig_url in extracted_urls:
-        jl.print(f'orig_url: {orig_url!r}')
+    for i, orig_url in enumerate(extracted_urls, start=1):
+        jl.print(f'orig_url {i}: {orig_url!r}')
         if any([pattern in orig_url for pattern in patterns_to_ignore]):
-            jl.print(f'skip this URL as orig_url was found among patterns to ignore')
+            jl.print(f'orig_url was found among patterns to ignore: skip it')
             continue
-        reply_with_media = False
-        ret = DotDict({'abs_path_to_media': '', 'clean_url': '', 'dl_info': ''})
-        if any([pattern in orig_url for pattern in patterns_from_which_to_download_media]):
-            reply_with_media = True
-            payload = await dl_worker(orig_url, jl)
-            if payload is None:
-                reply_with_media = False
-            else:
-                ret.update(payload)
-                ret = DotDict(ret)
-                jl.print(f"stored ret.abs_path_to_media = {ret.abs_path_to_media!r}")
-                jl.print(f"stored ret.clean_url = {ret.clean_url!r}")
-                jl.print(f"stored ret.dl_info = {'{...}'}")
-                await reply_with_video(message, ret, jl, bot)
-                os.remove(ret.abs_path_to_media)
-                jl.print(f"downloaded media file {ret.abs_path_to_media!r} has been removed")
-                del ret
-                continue
         target_url = (await get_destination_url(orig_url, jl)).strip('\n')
         jl.print(f'target_url: {target_url!r}')
         unescaped_url = url_unescape(target_url)
         jl.print(f'unescaped_url: {unescaped_url!r}')
         clean_url = (await url_clean(unescaped_url, jl)).strip('\n')
         jl.print(f'clean_url: {clean_url!r}')
-        ret.clean_url = clean_url
-        jl.print(f"stored ret.clean_url = {ret.clean_url!r}")
-        if not reply_with_media:
+        if any([pattern in orig_url for pattern in patterns_from_which_to_download_media]):
+            payload = await dl_worker(clean_url, jl)
+            if payload is not None:
+                payload = DotDict(payload)
+                payload.clean_url = clean_url
+                await reply_with_video(message, payload, jl, bot)
+                os.remove(payload.abs_path_to_media)
+                jl.print(f"downloaded media file {payload.abs_path_to_media!r} has been removed")
+                del payload
+                continue
+        if clean_url == orig_url:
+            jl.print(f"clean_url is identical to orig_url: skip it")
+        else:
             await reply_with_text_only(message, clean_url, orig_url, jl, bot)
-            continue
 
 
 #

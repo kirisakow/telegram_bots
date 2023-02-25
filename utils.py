@@ -143,8 +143,7 @@ async def reply_with_text_only(message: telebot.types.Message,
                                jl: JournalLogger,
                                bot: telebot.async_telebot.AsyncTeleBot) -> None:
     if transformed_text == original_text:
-        jl.print(
-            f"do not send reply: transformed text ({transformed_text!r}) is identical to the original text ({original_text!r})")
+        jl.print(f"do not send reply: transformed text ({transformed_text!r}) is identical to the original text")
         return
     await bot.reply_to(
         message, transformed_text,
@@ -155,19 +154,19 @@ async def reply_with_text_only(message: telebot.types.Message,
 
 
 async def reply_with_video(message: telebot.types.Message,
-                            ret: dict | DotDict,
+                            payload: dict | DotDict,
                             jl: JournalLogger,
                             bot: telebot.async_telebot.AsyncTeleBot) -> None:
-    with open(file=ret.abs_path_to_media, mode='rb') as videofile_bytes:
+    with open(file=payload.abs_path_to_media, mode='rb') as videofile_bytes:
         await bot.send_chat_action(chat_id=message.chat.id, action='upload_video', timeout=60)
         await bot.send_video(
             reply_to_message_id=message.message_id,
             chat_id=message.chat.id,
             video=videofile_bytes,
-            thumb=ret.dl_info.thumbnail,
+            thumb=payload.dl_info.thumbnail,
             caption='\n'.join([
-                ret.clean_url,
-                build_caption(ret.dl_info)
+                payload.clean_url,
+                build_caption(payload.dl_info)
             ]),
             disable_notification=True,
             allow_sending_without_reply=True
@@ -205,7 +204,6 @@ async def dl_worker(url: str, jl: JournalLogger):
             abs_path_to_media = dl_info.requested_downloads[-1].filepath
             clean_url = dl_info.webpage_url
             return {'abs_path_to_media': abs_path_to_media,
-                    'clean_url': dl_info.webpage_url,
                     'dl_info': dl_info}
         except Exception as e:
             jl.print(e)

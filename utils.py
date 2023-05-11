@@ -8,6 +8,7 @@ import re
 import subprocess
 import sys
 import telebot
+from telebot.async_telebot import AsyncTeleBot
 import urllib.parse
 import yt_dlp
 
@@ -138,10 +139,10 @@ conf = get_conf()
 
 
 async def reply_with_text_only(message: telebot.types.Message,
-                               transformed_text: str,
-                               original_text: str,
-                               jl: JournalLogger,
-                               bot: telebot.async_telebot.AsyncTeleBot) -> None:
+                                transformed_text: str,
+                                original_text: str,
+                                jl: JournalLogger,
+                                bot: AsyncTeleBot) -> None:
     if transformed_text == original_text:
         jl.print(f"do not send reply: transformed text ({transformed_text!r}) is identical to the original text")
         return
@@ -156,7 +157,7 @@ async def reply_with_text_only(message: telebot.types.Message,
 async def reply_with_video(message: telebot.types.Message,
                             payload: dict | DotDict,
                             jl: JournalLogger,
-                            bot: telebot.async_telebot.AsyncTeleBot) -> None:
+                            bot: AsyncTeleBot) -> None:
     with open(file=payload.abs_path_to_media, mode='rb') as videofile_bytes:
         await bot.send_chat_action(chat_id=message.chat.id, action='upload_video', timeout=60)
         await bot.send_video(

@@ -1,3 +1,6 @@
+# Ignore Poetry lock file
+poetry.lock
+
 .vscode/
 config.toml
 fourre-tout.py

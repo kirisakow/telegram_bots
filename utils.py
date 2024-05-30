@@ -135,9 +135,6 @@ def get_conf():
     )
 
 
-conf = get_conf()
-
-
 async def reply_with_text_only(message: telebot.types.Message,
                                 transformed_text: str,
                                 original_text: str,

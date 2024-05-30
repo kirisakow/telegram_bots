@@ -5,7 +5,16 @@ import re
 import sys
 import telebot
 from telebot.async_telebot import AsyncTeleBot
-from utils import *
+from utils import (
+    dl_worker,
+    DotDict,
+    get_conf,
+    get_destination_url,
+    JournalLogger,
+    reply_with_text_only,
+    reply_with_video,
+    url_clean,
+)
 sys.path.append(
     os.path.abspath(
         os.path.join(
@@ -16,12 +25,13 @@ sys.path.append(
 )
 from url_unescape import url_unescape
 
+conf = get_conf()
 bot = AsyncTeleBot(token=conf.bot1.api_token)
 logging.basicConfig(level=logging.DEBUG)
 jl = JournalLogger(program_name='unfoldAndCleanURLsBot')
-http_url_regex_pattern = r"https?://[a-zA-Z0-9_.]+(:[0-9]{2,5})?\S*"
+HTTP_URL_REGEX_PATTERN = r"https?://[a-zA-Z0-9_.]+(:[0-9]{2,5})?\S*"
 patterns_to_ignore = ['youtu.be']
-patterns_from_which_to_download_media = ['tiktok.com', 'instagram.com/tv', 'instagram.com/reel', 'youtube.com/shorts', 'twitter.com', 'v.redd.it']
+PATTERNS_FROM_WHICH_TO_DOWNLOAD_MEDIA = ['tiktok.com', 'instagram.com/tv', 'instagram.com/reel', 'youtube.com/shorts', 'twitter.com', 'v.redd.it']
 
 
 @bot.message_handler(
@@ -33,7 +43,7 @@ async def unfoldAndCleanURLs(message: telebot.types.Message):
     await bot.send_chat_action(chat_id=message.chat.id, action='typing', timeout=60)
     message = message.reply_to_message
     jl.print(f"original message text: {message.text!r}")
-    matches = re.finditer(http_url_regex_pattern, message.text, re.MULTILINE)
+    matches = re.finditer(HTTP_URL_REGEX_PATTERN, message.text, re.MULTILINE)
     extracted_urls = [match.group() for match in matches]
     if not extracted_urls:
         jl.print(f"no URLs in this message, but maybe we can at least unescape it and send back")
@@ -56,7 +66,7 @@ async def unfoldAndCleanURLs(message: telebot.types.Message):
         jl.print(f'unescaped_url: {unescaped_url!r}')
         clean_url = (await url_clean(unescaped_url, jl)).strip('\n')
         jl.print(f'clean_url: {clean_url!r}')
-        if any([pattern in orig_url for pattern in patterns_from_which_to_download_media]):
+        if any([pattern in orig_url for pattern in PATTERNS_FROM_WHICH_TO_DOWNLOAD_MEDIA]):
             payload = await dl_worker(clean_url, jl)
             if payload is not None:
                 payload = DotDict(payload)
@@ -82,5 +92,5 @@ try:
             logger_level=logging.DEBUG
         )
     )
-except KeyboardInterrupt as e:
+except KeyboardInterrupt:
     jl.print("process interrupted by user")

@@ -6,12 +6,11 @@ python = "^3.12"
 aiohttp = ">=3.8.3"
 asyncio = ">=3.4.3"
 configparser = ">=5.3.0"
-cysystemd = ">=1.5.3"
-httpx = ">=0.23.3"
 pyTelegramBotAPI = ">=4.14.0"
-urllib3 = ">=1.26.9"
-yt-dlp = ">=2022.10.4"
 telebot = ">=0.0.4"
+dot-dict = {path = "../dot-dict/", develop = true}
+journal-logger = {path = "../journal-logger/", develop = true}
+url-unescape = {path = "../url_tools/url_unescape/", develop = true}
 
 
 [build-system]

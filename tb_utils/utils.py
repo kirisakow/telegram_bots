@@ -31,7 +31,7 @@ def extract_urls(msg_txt: str) -> list:
 async def get_destination_url(url: str, jl: JournalLogger) -> str:
     """Follow the URL through redirects, if any, and return the destination URL"""
     proc_url_deref = subprocess.Popen(
-        ['bash', '-c', '. ../url_tools/bash_functions.sh ; url_deref'],
+        ['/usr/bin/bash', '-c', '. ../url_tools/bash_functions.sh ; url_deref'],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
     )
@@ -48,7 +48,7 @@ async def url_clean(url: str, jl: JournalLogger) -> str:
     """Clean a URL of any junk query parameters. Rules:
     https://github.com/kirisakow/url_tools/blob/main/url_clean/url_cleaner/unwanted_query_params.txt"""
     proc_url_clean = subprocess.Popen(
-        ['url_clean'],
+        ['../url_tools/url_clean/url_clean'],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
     )

@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import re
 import telebot
 from telebot.async_telebot import AsyncTeleBot
 from journal_logger.journal_logger import JournalLogger
@@ -30,7 +29,7 @@ async def unfoldAndCleanURLs(message: telebot.types.Message):
     await bot.send_chat_action(chat_id=message.chat.id, action='typing', timeout=60)
     if message.reply_to_message is not None:
         message = message.reply_to_message
-    message.text = re.sub(f'@{BOT_NAME} ', '', message.text)
+    message.text = message.text.replace(f'@{BOT_NAME} ', '', 1)
     jl.print(f"original message text: {message.text!r}")
     unescaped_text = url_unescape(message.text)
     jl.print(f"unescaped message text: {unescaped_text!r}")
@@ -63,7 +62,7 @@ async def unfoldAndCleanURLs(message: telebot.types.Message):
         if clean_url == orig_url:
             jl.print("clean_url is identical to orig_url: skip it")
             continue
-        msg_txt_clean_copy = re.sub(orig_url, clean_url, msg_txt_clean_copy)
+        msg_txt_clean_copy = msg_txt_clean_copy.replace(orig_url, clean_url, 1)
     await bot.reply_to(
         message, msg_txt_clean_copy,
         disable_web_page_preview=False,

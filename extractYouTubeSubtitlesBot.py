@@ -1,6 +1,8 @@
 import asyncio
 import logging
+import os
 import telebot
+import tempfile
 from telebot.async_telebot import AsyncTeleBot
 from journal_logger.journal_logger import JournalLogger
 from tb_utils.extractYouTubeSubtitlesBotUtils import (
@@ -45,16 +47,17 @@ async def extractYouTubeSubtitlesBot(message: telebot.types.Message):
         transcript = ytt_api.fetch(video_id, languages=[language_code]).to_raw_data()
         # Concatenate all text snippets
         full_text = " ".join([entry['text'] for entry in transcript])
+        tmp_path = tempfile.mktemp(suffix='.txt')
+        open(tmp_path, 'w').write(full_text)
+        with open(tmp_path, 'rb') as f:
+            await bot.send_document(
+                    message.chat.id, 
+                    f, 
+                    caption=f'transcript (lang: {language_code})', 
+                    reply_to_message_id=message.id)
+        os.unlink(tmp_path)
     except Exception as e:
         print(f"Error: {e}")
-
-
-    await bot.reply_to(
-        message, full_text,
-        disable_web_page_preview=False,
-        disable_notification=True,
-        allow_sending_without_reply=True
-    )
     return
 
 

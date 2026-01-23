@@ -4,7 +4,7 @@ import telebot
 from telebot.async_telebot import AsyncTeleBot
 from journal_logger.journal_logger import JournalLogger
 from url_unescape import url_unescape
-from tb_utils.utils import (
+from tb_utils.unfoldAndCleanURLsBotUtils import (
     BOT_NAME,
     PATTERNS_TO_IGNORE,
     extract_urls,

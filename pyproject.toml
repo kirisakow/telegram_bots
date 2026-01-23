@@ -1,19 +1,30 @@
-[tool.poetry]
-package-mode = false
-
-[tool.poetry.dependencies]
-python = ">=3.12,<3.15"
-aiohttp = "^3.13.3"
-asyncio = "^4.0.0"
-configparser = "^7.2.0"
-pyTelegramBotAPI = "^4.30.0"
-telebot = "^0.0.5"
-youtube-transcript-api = "^1.2.3"
-dot-dict = {path = "../dot-dict/", develop = true}
-journal-logger = {path = "../journal-logger/", develop = true}
-url-unescape = {path = "../url_tools/url_unescape/", develop = true}
+[project]
+name = "telegram-bots"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Kiril Isakov",email = "kirix.isakov@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+    "aiohttp (>=3.13.3,<4.0.0)",
+    "asyncio (>=4.0.0,<5.0.0)",
+    "configparser (>=7.2.0,<8.0.0)",
+    "pytelegrambotapi (>=4.30.0,<5.0.0)",
+    "telebot (>=0.0.5,<0.0.6)",
+    "youtube-transcript-api (>=1.2.3,<2.0.0)",
+    "dot-dict @ file:///home/kiri/dev/dot-dict",
+    "journal-logger @ file:///home/kiri/dev/journal-logger",
+    "url-unescape @ file:///home/kiri/dev/url_tools/url_unescape"
+]
 
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+dot-dict = {develop = true}
+journal-logger = {develop = true}
+url-unescape = {develop = true}

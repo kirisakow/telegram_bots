@@ -1,7 +1,6 @@
 import json
 import re
 import subprocess
-from configparser import ConfigParser
 import telebot
 from dot_dict.dot_dict import DotDict
 from journal_logger.journal_logger import JournalLogger
@@ -59,15 +58,6 @@ async def url_clean(url: str, jl: JournalLogger) -> str:
         jl.print(err_as_bytes)
         return url
     return output_as_bytes.decode()
-
-
-def get_conf():
-    """A convenience function to parse a hardcoded conf file"""
-    conf = ConfigParser()
-    conf.read('config.toml')
-    return DotDict(
-        conf.__dict__['_sections']
-    )
 
 
 async def reply_with_video(message: telebot.types.Message,

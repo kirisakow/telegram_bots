@@ -1,21 +1,21 @@
-import asyncio
-import logging
-import telebot
-from telebot.async_telebot import AsyncTeleBot
 from journal_logger.journal_logger import JournalLogger
 from url_unescape import url_unescape
 from tb_utils.unfoldAndCleanURLsBotUtils import (
     BOT_NAME,
     PATTERNS_TO_IGNORE,
     extract_urls,
-    get_conf,
     get_destination_url,
     url_clean,
 )
+from tb_utils.shared import get_conf
 
+from telebot.async_telebot import AsyncTeleBot
+import asyncio
+import logging
+import telebot
 
-conf = get_conf()
-bot = AsyncTeleBot(token=conf.bot1.api_token)
+conf = get_conf(BOT_NAME)
+bot = AsyncTeleBot(token=conf.api_token)
 logging.basicConfig(level=logging.DEBUG)
 jl = JournalLogger(program_name=BOT_NAME)
 

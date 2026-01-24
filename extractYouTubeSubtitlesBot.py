@@ -1,25 +1,24 @@
+from journal_logger.journal_logger import JournalLogger
+from tb_utils.extractYouTubeSubtitlesBotUtils import BOT_NAME
+from tb_utils.shared import get_conf
+
+from telebot.async_telebot import AsyncTeleBot
+from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.proxies import WebshareProxyConfig
 import asyncio
 import logging
 import os
 import telebot
 import tempfile
-from telebot.async_telebot import AsyncTeleBot
-from journal_logger.journal_logger import JournalLogger
-from tb_utils.extractYouTubeSubtitlesBotUtils import (
-    BOT_NAME,
-    get_conf,
-)
-from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api.proxies import WebshareProxyConfig
 
-conf = get_conf()
-bot = AsyncTeleBot(token=conf.bot0.api_token)
+conf = get_conf(BOT_NAME)
+bot = AsyncTeleBot(token=conf.api_token)
 logging.basicConfig(level=logging.DEBUG)
 jl = JournalLogger(program_name=BOT_NAME)
 
 
 def extract_video_id(url_or_id):
-    # Take the 11 rightmost characters, which is the YouTube video ID
+    """Take the 11 rightmost characters, which is the YouTube video ID"""
     return url_or_id[-11:]
 
 
@@ -38,8 +37,8 @@ async def extractYouTubeSubtitlesBot(message: telebot.types.Message):
     try:
         ytt_api = YouTubeTranscriptApi(
             proxy_config=WebshareProxyConfig(
-                proxy_username=conf.bot0.proxy_username,
-                proxy_password=conf.bot0.proxy_password,
+                proxy_username=conf.proxy_username,
+                proxy_password=conf.proxy_password,
                 filter_ip_locations=[language_code],
             )
         )
@@ -51,9 +50,9 @@ async def extractYouTubeSubtitlesBot(message: telebot.types.Message):
         open(tmp_path, 'w').write(full_text)
         with open(tmp_path, 'rb') as f:
             await bot.send_document(
-                    message.chat.id, 
-                    f, 
-                    caption=f'transcript (lang: {language_code})', 
+                    message.chat.id,
+                    f,
+                    caption=f'transcript (lang: {language_code})',
                     reply_to_message_id=message.id)
         os.unlink(tmp_path)
     except Exception as e:

@@ -24,7 +24,7 @@ def extract_video_id(url_or_id):
 
 
 @bot.message_handler(
-    func=lambda message: (message.text is not None and message.text.split()[0].casefold() == f'@{BOT_NAME}'.casefold()) or (message.reply_to_message is not None and message.reply_to_message.text is not None),
+    func=lambda message: message.text.startswith(f'@{BOT_NAME}'),
     chat_types=['private', 'group', 'supergroup', 'channel'],
     content_types=telebot.util.content_type_media
 )

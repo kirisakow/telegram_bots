@@ -33,7 +33,7 @@ async def extractYouTubeSubtitlesBot(message: telebot.types.Message):
     if message.reply_to_message is not None:
         message = message.reply_to_message
     message.text = message.text.replace(f'@{BOT_NAME} ', '', 1)
-    language_code, video_url_or_id = message.text.split()
+    language_code, video_url_or_id = sorted(message.text.split(), key=len)
     video_id = extract_video_id(video_url_or_id)
     try:
         ytt_api = YouTubeTranscriptApi(

@@ -1,13 +1,13 @@
 from journal_logger.journal_logger import JournalLogger
 from url_unescape import url_unescape
-from tb_utils.unfoldAndCleanURLsBotUtils import (
+from util.unfoldAndCleanURLsBotUtils import (
     BOT_NAME,
     PATTERNS_TO_IGNORE,
     extract_urls,
     get_destination_url,
     url_clean,
 )
-from tb_utils.shared import get_conf
+from util.shared import get_conf
 
 from telebot.async_telebot import AsyncTeleBot
 import asyncio

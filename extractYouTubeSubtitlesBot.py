@@ -1,6 +1,6 @@
 from journal_logger.journal_logger import JournalLogger
-from tb_utils.extractYouTubeSubtitlesBotUtils import BOT_NAME
-from tb_utils.shared import get_conf
+from util.extractYouTubeSubtitlesBotUtils import BOT_NAME
+from util.shared import get_conf
 
 from telebot.async_telebot import AsyncTeleBot
 from youtube_transcript_api import YouTubeTranscriptApi

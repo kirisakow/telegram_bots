@@ -1,5 +1,5 @@
 from journal_logger.journal_logger import JournalLogger
-from util.extractYouTubeSubtitlesBotUtil import BOT_NAME
+from util.extractYouTubeSubtitlesBotUtil import BOT_NAME, extract_video_id
 from util.shared import get_conf
 
 from telebot.async_telebot import AsyncTeleBot
@@ -15,11 +15,6 @@ conf = get_conf(BOT_NAME)
 bot = AsyncTeleBot(token=conf.api_token)
 logging.basicConfig(level=logging.DEBUG)
 jl = JournalLogger(program_name=BOT_NAME)
-
-
-def extract_video_id(url_or_id):
-    """Take the 11 rightmost characters, which is the YouTube video ID"""
-    return url_or_id[-11:]
 
 
 @bot.message_handler(

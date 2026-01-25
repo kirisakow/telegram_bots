@@ -1,5 +1,5 @@
 from journal_logger.journal_logger import JournalLogger
-from util.extractYouTubeSubtitlesBotUtils import BOT_NAME
+from util.extractYouTubeSubtitlesBotUtil import BOT_NAME
 from util.shared import get_conf
 
 from telebot.async_telebot import AsyncTeleBot

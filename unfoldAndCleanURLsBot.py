@@ -1,6 +1,6 @@
 from journal_logger.journal_logger import JournalLogger
 from url_unescape import url_unescape
-from util.unfoldAndCleanURLsBotUtils import (
+from util.unfoldAndCleanURLsBotUtil import (
     BOT_NAME,
     PATTERNS_TO_IGNORE,
     extract_urls,
